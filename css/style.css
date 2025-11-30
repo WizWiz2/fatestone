@@ -1,0 +1,211 @@
+:root {
+    --bg-color: #2c1e1a;
+    --board-bg: #e6d5ac;
+    /* Parchment/Light Wood */
+    --board-border: #5d4037;
+    --cell-border: #8d6e63;
+    --gold: #ffb300;
+    --red: #d32f2f;
+    --black: #212121;
+    --text-main: #f5f5f5;
+    --cell-size: min(10vw, 55px);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+}
+
+body {
+    font-family: 'Ruslan Display', serif;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+    background-image: repeating-linear-gradient(45deg,
+            #2c1e1a,
+            #2c1e1a 10px,
+            #3e2723 10px,
+            #3e2723 20px);
+}
+
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    transition: opacity 0.3s;
+}
+
+.hidden {
+    opacity: 0;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.active {
+    opacity: 1;
+    z-index: 10;
+}
+
+.title {
+    font-size: 4rem;
+    color: var(--gold);
+    text-shadow: 3px 3px 0 #000;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+/* Game Layout */
+#game-screen {
+    background: transparent;
+    backdrop-filter: none;
+}
+
+.header {
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+#turn-indicator {
+    font-size: 1.5rem;
+    padding: 0.5rem 1.5rem;
+    background: #3e2723;
+    border: 2px solid var(--gold);
+    border-radius: 8px;
+    color: var(--gold);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+#board-container {
+    padding: 15px;
+    background: #5d4037;
+    border-radius: 4px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+    border: 2px solid #3e2723;
+}
+
+#board {
+    display: grid;
+    grid-template-columns: repeat(9, var(--cell-size));
+    grid-template-rows: repeat(9, var(--cell-size));
+    background-color: var(--board-bg);
+    border: 2px solid var(--board-border);
+}
+
+.cell {
+    width: var(--cell-size);
+    height: var(--cell-size);
+    border: 1px solid rgba(93, 64, 55, 0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+/* Special Squares */
+.cell.throne {
+    background-color: rgba(255, 179, 0, 0.3);
+    box-shadow: inset 0 0 10px rgba(255, 179, 0, 0.5);
+}
+
+.cell.throne::after {
+    content: '♔';
+    position: absolute;
+    font-size: 2rem;
+    opacity: 0.2;
+    color: #5d4037;
+}
+
+.cell.corner {
+    background-color: rgba(211, 47, 47, 0.2);
+    background-image: radial-gradient(circle, rgba(211, 47, 47, 0.4) 0%, transparent 70%);
+}
+
+.cell.highlight {
+    background-color: rgba(76, 175, 80, 0.4);
+    cursor: pointer;
+    box-shadow: inset 0 0 0 2px #388e3c;
+}
+
+/* Pieces (SVG Containers) */
+.piece {
+    width: 90%;
+    height: 90%;
+    transition: transform 0.2s;
+    filter: drop-shadow(2px 4px 2px rgba(0, 0, 0, 0.4));
+}
+
+.piece.selected {
+    transform: scale(1.15) translateY(-5px);
+    filter: drop-shadow(0 10px 5px rgba(0, 0, 0, 0.5));
+    z-index: 100;
+}
+
+/* Buttons */
+button {
+    font-family: 'Ruslan Display', serif;
+    font-size: 1.2rem;
+    padding: 10px 25px;
+    background: #3e2723;
+    color: #f5f5f5;
+    border: 2px solid #8d6e63;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.1s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+button:hover {
+    background: #4e342e;
+    border-color: var(--gold);
+    color: var(--gold);
+}
+
+button:active {
+    transform: translateY(2px);
+}
+
+.btn-primary {
+    background: var(--red);
+    border-color: #b71c1c;
+    font-size: 1.5rem;
+    padding: 15px 40px;
+}
+
+.btn-primary:hover {
+    background: #c62828;
+}
+
+.controls {
+    margin-top: 1rem;
+    display: flex;
+    gap: 10px;
+}
+
+/* Ad Modal */
+.ad-content {
+    background: #e6d5ac;
+    color: #3e2723;
+    padding: 2rem;
+    border: 4px double #5d4037;
+    border-radius: 8px;
+    text-align: center;
+    max-width: 400px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+}
