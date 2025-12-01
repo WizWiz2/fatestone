@@ -1,4 +1,4 @@
-export class AdManager {
+class AdManager {
     constructor() {
         this.ysdk = null;
         this.initYandex();
@@ -99,4 +99,5 @@ export class AdManager {
     }
 }
 
-export const adManager = new AdManager();
+const adManager = new AdManager();
+window.adManager = adManager;

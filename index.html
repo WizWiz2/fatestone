@@ -1,33 +1,69 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 
-<button id="start-btn" class="btn-primary">Начать Игру</button>
-</div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тавлеи</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/rules.css">
+    <link href="https://fonts.googleapis.com/css2?family=Ruslan+Display&display=swap" rel="stylesheet">
+</head>
 
-<div id="game-screen" class="screen hidden">
-    <div class="header">
-        <div id="turn-indicator">Ход: Князь</div>
-        <button id="undo-btn" class="btn-small">Отмена</button>
-    </div>
-    <div id="board-container">
-        <div id="board"></div>
-    </div>
-    <div class="controls">
-        <button id="restart-btn" class="btn-secondary">Заново</button>
-        <button id="menu-btn" class="btn-secondary">Меню</button>
-    </div>
-</div>
+<body>
 
-<div id="ad-modal" class="screen hidden">
-    <div class="ad-content">
-        <h2>Реклама</h2>
-        <p>Посмотрите видео, чтобы отменить ход...</p>
-        <div id="ad-timer">5</div>
-        <button id="close-ad-btn" class="btn-primary hidden">Закрыть</button>
+    <div id="menu-screen" class="screen active">
+        <h1 id="game-title" class="title">Тавлеи</h1>
+        <div class="menu-actions">
+            <button id="start-btn" class="btn-primary">Начать игру</button>
+            <button id="rules-btn" class="btn-secondary">Правила</button>
+            <button id="menu-lang-btn" class="btn-secondary">Язык: Русский</button>
+        </div>
     </div>
-</div>
-</div>
-<script type="module" src="js/main.js"></script>
+
+    <div id="rules-screen" class="screen hidden">
+        <div class="rules-content">
+            <h2 id="rules-title">Правила Тавлеи</h2>
+            <div id="rules-text" class="rules-text">
+                <!-- Content injected by JS -->
+            </div>
+            <div class="rules-controls">
+                <button id="back-button" class="btn-secondary">Назад</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="game-screen" class="screen hidden">
+        <div class="header">
+            <div id="turn-indicator">Ход чёрных</div>
+            <button id="undo-btn" class="btn-small">Отменить ход</button>
+        </div>
+        <div id="board-container">
+            <div id="board"></div>
+        </div>
+        <div class="controls">
+            <button id="restart-btn" class="btn-secondary">Заново</button>
+            <button id="menu-btn" class="btn-secondary">Меню</button>
+        </div>
+    </div>
+
+    <div id="ad-modal" class="screen hidden">
+        <div class="ad-content">
+            <h2 id="ad-title">Реклама</h2>
+            <p id="ad-body">Подождите пару секунд, мы скоро вернём игру.</p>
+            <div id="ad-timer">5</div>
+            <button id="close-ad-btn" class="btn-primary hidden">Закрыть</button>
+        </div>
+    </div>
+
+    <script src="js/rules.js"></script>
+    <script src="js/icons.js"></script>
+    <script src="js/localization.js"></script>
+    <script src="js/ai.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/board.js"></script>
+    <script src="js/adManager.js"></script>
+    <script src="js/main.js"></script>
 </body>
 
 </html>

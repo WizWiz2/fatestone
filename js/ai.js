@@ -1,6 +1,4 @@
-import { BOARD_SIZE, PIECE, isValidMove, isCorner, isThrone } from './rules.js';
-
-export class AI {
+class AI {
     constructor(pieceType) {
         this.pieceType = pieceType; // Usually PIECE.ATTACKER
     }
@@ -128,3 +126,5 @@ export class AI {
         return null;
     }
 }
+
+window.AI = AI;

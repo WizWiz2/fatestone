@@ -1,5 +1,3 @@
-import { getInitialBoard, isValidMove, PIECE, checkWin, BOARD_SIZE, isCorner, isThrone } from './rules.js';
-
 class GameStore {
     constructor() {
         this.state = {
@@ -146,4 +144,5 @@ class GameStore {
     }
 }
 
-export const gameStore = new GameStore();
+const gameStore = new GameStore();
+window.gameStore = gameStore;

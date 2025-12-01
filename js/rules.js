@@ -1,12 +1,12 @@
-export const BOARD_SIZE = 9;
-export const PIECE = {
+const BOARD_SIZE = 9;
+const PIECE = {
     EMPTY: 0,
     ATTACKER: 1,
     DEFENDER: 2,
     KNYAZ: 3
 };
 
-export function getInitialBoard() {
+function getInitialBoard() {
     const board = Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(PIECE.EMPTY));
 
     // Attackers (16)
@@ -31,7 +31,7 @@ export function getInitialBoard() {
     return board;
 }
 
-export function isValidMove(board, fromR, fromC, toR, toC, turn) {
+function isValidMove(board, fromR, fromC, toR, toC, turn) {
     if (board[toR][toC] !== PIECE.EMPTY) return false;
     if (fromR !== toR && fromC !== toC) return false; // Diagonal check
 
@@ -60,15 +60,15 @@ export function isValidMove(board, fromR, fromC, toR, toC, turn) {
     return true;
 }
 
-export function isCorner(r, c) {
+function isCorner(r, c) {
     return (r === 0 || r === BOARD_SIZE - 1) && (c === 0 || c === BOARD_SIZE - 1);
 }
 
-export function isThrone(r, c) {
+function isThrone(r, c) {
     return r === 4 && c === 4;
 }
 
-export function checkWin(board, turn) {
+function checkWin(board, turn) {
     // Check Knyaz escape
     for (let r = 0; r < BOARD_SIZE; r++) {
         for (let c = 0; c < BOARD_SIZE; c++) {
@@ -94,3 +94,11 @@ export function checkWin(board, turn) {
 
     return null;
 }
+
+window.BOARD_SIZE = BOARD_SIZE;
+window.PIECE = PIECE;
+window.getInitialBoard = getInitialBoard;
+window.isValidMove = isValidMove;
+window.isCorner = isCorner;
+window.isThrone = isThrone;
+window.checkWin = checkWin;
