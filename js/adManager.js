@@ -1,69 +1,92 @@
 class AdManager {
     constructor() {
         this.ysdk = null;
-        this.initYandex();
+        this.sdkPromise = null;
+        this.ensureSdk();
     }
 
-    initYandex() {
-        if (window.YaGames) {
-            window.YaGames.init()
-                .then(ysdk => {
+    ensureSdk() {
+        if (this.sdkPromise) return this.sdkPromise;
+
+        this.sdkPromise = new Promise((resolve, reject) => {
+            if (window.YaGames) {
+                resolve(window.YaGames);
+                return;
+            }
+            const script = document.createElement('script');
+            script.src = 'https://yandex.ru/games/sdk/v2';
+            script.async = true;
+            script.onload = () => resolve(window.YaGames);
+            script.onerror = () => reject(new Error('YaGames SDK failed to load'));
+            document.head.appendChild(script);
+        })
+            .then((YaGames) => {
+                if (!YaGames) return null;
+                return YaGames.init();
+            })
+            .then((ysdk) => {
+                if (ysdk) {
                     console.log('Yandex SDK initialized');
                     this.ysdk = ysdk;
-                })
-                .catch(err => {
-                    console.error('Yandex SDK init error:', err);
-                });
-        } else {
-            console.log('Yandex SDK not found (running locally?)');
-        }
+                }
+                return ysdk;
+            })
+            .catch((err) => {
+                console.error('Yandex SDK init error:', err);
+                return null;
+            });
+
+        return this.sdkPromise;
     }
 
     showRewardedVideo(onReward, onClose) {
-        if (this.ysdk) {
-            this.ysdk.adv.showRewardedVideo({
-                callbacks: {
-                    onOpen: () => {
-                        console.log('Video ad open.');
-                    },
-                    onRewarded: () => {
-                        console.log('Rewarded!');
-                        onReward();
-                    },
-                    onClose: () => {
-                        console.log('Video ad closed.');
-                        if (onClose) onClose();
-                    },
-                    onError: (e) => {
-                        console.log('Error while open video ad:', e);
-                        // Fallback to mock if error (optional)
-                        if (onClose) onClose();
+        this.ensureSdk().then((ysdk) => {
+            if (ysdk && ysdk.adv) {
+                ysdk.adv.showRewardedVideo({
+                    callbacks: {
+                        onOpen: () => {
+                            console.log('Video ad open.');
+                        },
+                        onRewarded: () => {
+                            console.log('Rewarded!');
+                            onReward();
+                        },
+                        onClose: () => {
+                            console.log('Video ad closed.');
+                            if (onClose) onClose();
+                        },
+                        onError: (e) => {
+                            console.log('Error while open video ad:', e);
+                            if (onClose) onClose();
+                            this.showMockAd(onReward);
+                        }
                     }
-                }
-            });
-        } else {
-            // Mock Ad for testing
-            console.log("Showing Mock Ad");
-            this.showMockAd(onReward);
-        }
+                });
+            } else {
+                console.log('Showing Mock Ad');
+                this.showMockAd(onReward);
+            }
+        });
     }
 
     showFullscreenAd(onClose) {
-        if (this.ysdk) {
-            this.ysdk.adv.showFullscreenAdv({
-                callbacks: {
-                    onClose: function (wasShown) {
-                        if (onClose) onClose();
-                    },
-                    onError: function (error) {
-                        if (onClose) onClose();
+        this.ensureSdk().then((ysdk) => {
+            if (ysdk && ysdk.adv) {
+                ysdk.adv.showFullscreenAdv({
+                    callbacks: {
+                        onClose: function () {
+                            if (onClose) onClose();
+                        },
+                        onError: function () {
+                            if (onClose) onClose();
+                        }
                     }
-                }
-            });
-        } else {
-            console.log("Mock Interstitial Ad (Skipped)");
-            if (onClose) onClose();
-        }
+                });
+            } else {
+                console.log('Mock Interstitial Ad (Skipped)');
+                if (onClose) onClose();
+            }
+        });
     }
 
     showMockAd(onReward) {
