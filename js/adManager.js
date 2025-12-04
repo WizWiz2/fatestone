@@ -10,20 +10,22 @@ class AdManager {
 
         this.sdkPromise = new Promise((resolve, reject) => {
             if (window.YaGames) {
-                resolve(window.YaGames);
+                resolve(window.YaGames.init());
                 return;
             }
-            const script = document.createElement('script');
-            script.src = 'https://yandex.ru/games/sdk/v2';
-            script.async = true;
-            script.onload = () => resolve(window.YaGames);
-            script.onerror = () => reject(new Error('YaGames SDK failed to load'));
-            document.head.appendChild(script);
+            // Wait for script to load if it hasn't already (though it's in head now)
+            window.onload = () => {
+                if (window.YaGames) {
+                    resolve(window.YaGames.init());
+                } else {
+                    reject(new Error('YaGames SDK not found'));
+                }
+            };
+            // Fallback if window.onload already fired or script is async
+            if (document.readyState === 'complete' && window.YaGames) {
+                resolve(window.YaGames.init());
+            }
         })
-            .then((YaGames) => {
-                if (!YaGames) return null;
-                return YaGames.init();
-            })
             .then((ysdk) => {
                 if (ysdk) {
                     console.log('Yandex SDK initialized');
@@ -58,12 +60,13 @@ class AdManager {
                         onError: (e) => {
                             console.log('Error while open video ad:', e);
                             if (onClose) onClose();
-                            this.showMockAd(onReward);
+                            // Fallback to mock if real ad fails? 
+                            // Usually better to just fail gracefully or show mock if strictly local dev.
                         }
                     }
                 });
             } else {
-                console.log('Showing Mock Ad');
+                console.log('SDK not ready or local dev, showing Mock Ad');
                 this.showMockAd(onReward);
             }
         });
@@ -77,7 +80,8 @@ class AdManager {
                         onClose: function () {
                             if (onClose) onClose();
                         },
-                        onError: function () {
+                        onError: function (e) {
+                            console.log('Error while open fullscreen ad:', e);
                             if (onClose) onClose();
                         }
                     }
@@ -94,31 +98,46 @@ class AdManager {
         const adTimer = document.getElementById('ad-timer');
         const closeAdBtn = document.getElementById('close-ad-btn');
 
+        if (!adModal) {
+            console.error('Ad modal not found!');
+            if (onReward) onReward();
+            return;
+        }
+
         adModal.classList.remove('hidden');
         adModal.classList.add('active');
-        closeAdBtn.classList.add('hidden');
+        if (closeAdBtn) closeAdBtn.classList.add('hidden');
 
         let timeLeft = 3;
-        adTimer.textContent = timeLeft;
+        if (adTimer) adTimer.textContent = timeLeft;
 
         const interval = setInterval(() => {
             timeLeft--;
-            adTimer.textContent = timeLeft;
+            if (adTimer) adTimer.textContent = timeLeft;
             if (timeLeft <= 0) {
                 clearInterval(interval);
-                closeAdBtn.classList.remove('hidden');
+                if (closeAdBtn) closeAdBtn.classList.remove('hidden');
             }
         }, 1000);
 
         // Remove old listeners to prevent duplicates
-        const newBtn = closeAdBtn.cloneNode(true);
-        closeAdBtn.parentNode.replaceChild(newBtn, closeAdBtn);
+        if (closeAdBtn) {
+            const newBtn = closeAdBtn.cloneNode(true);
+            closeAdBtn.parentNode.replaceChild(newBtn, closeAdBtn);
 
-        newBtn.onclick = () => {
-            adModal.classList.add('hidden');
-            adModal.classList.remove('active');
-            onReward();
-        };
+            newBtn.onclick = () => {
+                adModal.classList.add('hidden');
+                adModal.classList.remove('active');
+                if (onReward) onReward();
+            };
+        } else {
+            // If no close button, just auto-close after timer (fallback)
+            setTimeout(() => {
+                adModal.classList.add('hidden');
+                adModal.classList.remove('active');
+                if (onReward) onReward();
+            }, 3500);
+        }
     }
 }
 
