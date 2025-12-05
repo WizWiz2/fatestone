@@ -8,45 +8,20 @@ class AdManager {
     ensureSdk() {
         if (this.sdkPromise) return this.sdkPromise;
 
-        const basePromise = window.ysdkPromise
-            ? window.ysdkPromise
-            : new Promise((resolve) => {
-                if (typeof YaGames === 'undefined') {
-                    console.warn('YaGames is undefined. Not on Yandex?');
-                    resolve(null);
-                    return;
-                }
-
-                YaGames.init()
-                    .then((ysdk) => resolve(ysdk))
-                    .catch((err) => {
-                        console.error('YaGames.init() error:', err);
-                        resolve(null);
-                    });
+        // Rely on global init from yandex.js
+        if (window.ysdkPromise) {
+            this.sdkPromise = window.ysdkPromise.then((ysdk) => {
+                this.ysdk = ysdk;
+                return ysdk;
             });
-
-        // Wrap the base promise with a timeout race
-        const timeoutPromise = new Promise((resolve) => {
-            setTimeout(() => {
-                console.warn('AdManager: SDK init timed out, falling back to mock.');
-                resolve(null);
-            }, 3000); // 3 seconds max wait for ads
-        });
-
-        this.sdkPromise = Promise.race([basePromise, timeoutPromise]).then((ysdk) => {
-            this.ysdk = ysdk;
-
-            // Mark loader as ready through the shared helper if present.
-            if (window.yandexSDK) {
-                window.yandexSDK.state.ysdk = ysdk || window.yandexSDK.state.ysdk;
-                window.yandexSDK.ready('ad-manager');
-            } else if (ysdk && ysdk.features && ysdk.features.LoadingAPI) {
-                ysdk.features.LoadingAPI.ready();
-                console.log('LoadingAPI.ready() called from ensureSdk');
-            }
-
-            return ysdk;
-        });
+        } else if (window.ysdk) {
+            this.ysdk = window.ysdk;
+            this.sdkPromise = Promise.resolve(window.ysdk);
+        } else {
+            // Fallback for local testing or failure
+            console.log('No Yandex SDK found (local dev?)');
+            this.sdkPromise = Promise.resolve(null);
+        }
 
         return this.sdkPromise;
     }

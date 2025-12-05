@@ -20,6 +20,14 @@
     }
 
     function initSdk() {
+        // Reuse existing global SDK if host already provided one.
+        if (window.ysdk && !state.initPromise) {
+            state.ysdk = window.ysdk;
+            markReady('existing-global');
+            state.initPromise = Promise.resolve(window.ysdk);
+            return state.initPromise;
+        }
+
         if (state.initPromise) return state.initPromise;
 
         if (typeof YaGames === 'undefined') {
@@ -28,9 +36,11 @@
             return state.initPromise;
         }
 
+        // Initialize Yandex Games SDK
         state.initPromise = YaGames.init()
             .then((ysdk) => {
                 state.ysdk = ysdk;
+                window.ysdk = ysdk; // expose globally like in other working project
                 markReady('init');
                 return ysdk;
             })

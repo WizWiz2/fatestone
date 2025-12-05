@@ -7,6 +7,7 @@ let adTitle, adBody, adCloseBtn;
 // State
 let currentLang = 'RU';
 let latestState = null;
+let aiMoveTimeoutId = null;
 
 function initApp() {
     menuScreen = document.getElementById('menu-screen');
@@ -93,9 +94,16 @@ function initApp() {
         const isAttacker = state.turn === PIECE.ATTACKER;
         updateTurnIndicator(state);
 
+        if (aiMoveTimeoutId) {
+            clearTimeout(aiMoveTimeoutId);
+            aiMoveTimeoutId = null;
+        }
+
         if (state.status === 'PLAYING' && isAttacker) {
-            setTimeout(() => {
-                const move = ai.findBestMove(state.board);
+            aiMoveTimeoutId = setTimeout(() => {
+                // Use the latest board/turn to avoid acting on stale state after undo.
+                if (gameStore.state.turn !== PIECE.ATTACKER) return;
+                const move = ai.findBestMove(gameStore.state.board);
                 if (move) {
                     gameStore.move(move.fromR, move.fromC, move.toR, move.toC);
                 }

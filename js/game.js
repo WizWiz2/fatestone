@@ -67,11 +67,28 @@ class GameStore {
     }
 
     undo() {
-        if (this.state.history.length === 0 || this.state.status !== 'PLAYING') return;
+        if (this.state.status !== 'PLAYING') return;
+        if (this.state.history.length === 0) return;
 
-        const lastState = this.state.history.pop();
+        // Roll back to the latest snapshot that belonged to the player (Defender).
+        // We skip attacker snapshots so that "Undo" always reverts the user's move,
+        // along with any AI reply that happened after it.
+        let lastState = null;
+        while (this.state.history.length > 0) {
+            const snapshot = this.state.history.pop();
+            if (snapshot.turn === PIECE.DEFENDER) {
+                lastState = snapshot;
+                break;
+            }
+        }
+
+        if (!lastState) return; // No player move to undo yet
+
         this.state.board = lastState.board;
         this.state.turn = lastState.turn;
+        this.state.status = 'PLAYING';
+        this.state.winner = null;
+
         this.notify();
     }
 

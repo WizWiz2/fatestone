@@ -216,6 +216,10 @@ button:active {
 }
 
 /* Ad Modal */
+#ad-modal {
+    z-index: 9999;
+}
+
 .ad-content {
     background: #e6d5ac;
     color: #3e2723;
