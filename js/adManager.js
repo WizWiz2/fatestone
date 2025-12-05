@@ -8,35 +8,45 @@ class AdManager {
     ensureSdk() {
         if (this.sdkPromise) return this.sdkPromise;
 
-        this.sdkPromise = new Promise((resolve, reject) => {
-            if (window.YaGames) {
-                resolve(window.YaGames.init());
-                return;
-            }
-            // Wait for script to load if it hasn't already (though it's in head now)
-            window.onload = () => {
-                if (window.YaGames) {
-                    resolve(window.YaGames.init());
-                } else {
-                    reject(new Error('YaGames SDK not found'));
+        const basePromise = window.ysdkPromise
+            ? window.ysdkPromise
+            : new Promise((resolve) => {
+                if (typeof YaGames === 'undefined') {
+                    console.warn('YaGames is undefined. Not on Yandex?');
+                    resolve(null);
+                    return;
                 }
-            };
-            // Fallback if window.onload already fired or script is async
-            if (document.readyState === 'complete' && window.YaGames) {
-                resolve(window.YaGames.init());
-            }
-        })
-            .then((ysdk) => {
-                if (ysdk) {
-                    console.log('Yandex SDK initialized');
-                    this.ysdk = ysdk;
-                }
-                return ysdk;
-            })
-            .catch((err) => {
-                console.error('Yandex SDK init error:', err);
-                return null;
+
+                YaGames.init()
+                    .then((ysdk) => resolve(ysdk))
+                    .catch((err) => {
+                        console.error('YaGames.init() error:', err);
+                        resolve(null);
+                    });
             });
+
+        // Wrap the base promise with a timeout race
+        const timeoutPromise = new Promise((resolve) => {
+            setTimeout(() => {
+                console.warn('AdManager: SDK init timed out, falling back to mock.');
+                resolve(null);
+            }, 3000); // 3 seconds max wait for ads
+        });
+
+        this.sdkPromise = Promise.race([basePromise, timeoutPromise]).then((ysdk) => {
+            this.ysdk = ysdk;
+
+            // Mark loader as ready through the shared helper if present.
+            if (window.yandexSDK) {
+                window.yandexSDK.state.ysdk = ysdk || window.yandexSDK.state.ysdk;
+                window.yandexSDK.ready('ad-manager');
+            } else if (ysdk && ysdk.features && ysdk.features.LoadingAPI) {
+                ysdk.features.LoadingAPI.ready();
+                console.log('LoadingAPI.ready() called from ensureSdk');
+            }
+
+            return ysdk;
+        });
 
         return this.sdkPromise;
     }

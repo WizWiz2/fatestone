@@ -7,9 +7,30 @@
     <title>Тавлеи</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/rules.css">
+    <!-- Restore "Ancient" font, use display=swap to avoid blocking -->
     <link href="https://fonts.googleapis.com/css2?family=Ruslan+Display&display=swap" rel="stylesheet">
+
     <!-- Yandex Games SDK -->
     <script src="https://yandex.ru/games/sdk/v2"></script>
+    <script src="js/yandex.js"></script>
+    <script>
+        // Global error handler for debugging
+        window.onerror = function (msg, url, line, col, error) {
+            var div = document.createElement("div");
+            div.style.position = "absolute";
+            div.style.top = "0";
+            div.style.left = "0";
+            div.style.width = "100%";
+            div.style.backgroundColor = "red";
+            div.style.color = "white";
+            div.style.padding = "10px";
+            div.style.zIndex = "9999";
+            div.textContent = "Error: " + msg + " at " + line + ":" + col;
+            document.body.appendChild(div);
+            // Also try to alert
+            console.error("Game Error:", msg, error);
+        };
+    </script>
 </head>
 
 <body>

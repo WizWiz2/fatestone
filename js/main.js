@@ -60,9 +60,13 @@ function initApp() {
 
     if (restartBtn) {
         restartBtn.onclick = () => {
-            adManager.showFullscreenAd(() => {
+            if (window.adManager) {
+                window.adManager.showFullscreenAd(() => {
+                    gameStore.start();
+                });
+            } else {
                 gameStore.start();
-            });
+            }
         };
     }
 
@@ -74,9 +78,13 @@ function initApp() {
 
     if (undoBtn) {
         undoBtn.onclick = () => {
-            adManager.showRewardedVideo(() => {
+            if (window.adManager) {
+                window.adManager.showRewardedVideo(() => {
+                    gameStore.undo();
+                });
+            } else {
                 gameStore.undo();
-            });
+            }
         };
     }
 

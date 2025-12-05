@@ -8,7 +8,9 @@
     --red: #d32f2f;
     --black: #212121;
     --text-main: #f5f5f5;
-    --cell-size: min(10vw, 55px);
+    /* Responsive cell size: 9x9 board needs to fit in 100vh minus header/controls margin (approx 150px) */
+    /* 100vh - 150px approx 85vh / 9 approx 9vh. Safely 7vh or 8vh */
+    --cell-size: min(10vw, 7vh, 50px);
 }
 
 * {
@@ -47,6 +49,8 @@ body {
     background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(5px);
     transition: opacity 0.3s;
+    /* Add padding to prevent edge touching */
+    padding: 10px;
 }
 
 .hidden {
@@ -62,7 +66,7 @@ body {
 }
 
 .title {
-    font-size: 4rem;
+    font-size: min(10vw, 4rem);
     color: var(--gold);
     text-shadow: 3px 3px 0 #000;
     margin-bottom: 2rem;
@@ -88,15 +92,15 @@ body {
 }
 
 .header {
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
     display: flex;
     gap: 1rem;
     align-items: center;
 }
 
 #turn-indicator {
-    font-size: 1.5rem;
-    padding: 0.5rem 1.5rem;
+    font-size: 1.2rem;
+    padding: 0.3rem 1rem;
     background: #3e2723;
     border: 2px solid var(--gold);
     border-radius: 8px;
@@ -105,7 +109,7 @@ body {
 }
 
 #board-container {
-    padding: 15px;
+    padding: 5px;
     background: #5d4037;
     border-radius: 4px;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
@@ -177,7 +181,7 @@ button {
     background: #3e2723;
     color: #f5f5f5;
     border: 2px solid #8d6e63;
-    border-radius: 4px;
+    border-radius: 8px;
     cursor: pointer;
     transition: all 0.1s;
     text-transform: uppercase;
